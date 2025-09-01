@@ -2,6 +2,7 @@ import React, { useState, useEffect }from 'react';
 import PokemonList from './PokemonList';
 import axios from 'axios';
 import Pagination from './Pagination';
+import Header from './Header';
 
 function App() {
   const [pokemon, setPokemon] = useState([])
@@ -50,8 +51,13 @@ function App() {
 
   if (loading) return "Loading..."
 
+  function handleSearch(query) {
+    setCurrentPageUrl(`https://pokeapi.co/api/v2/pokemon/${query}`);
+  }
+
   return (
     <>
+      <Header onSearch={handleSearch} />
       <PokemonList pokemon={pokemon} />
       <Pagination 
         gotoNextPage={nextPageUrl ? gotoNextPage : null}

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import '../styles/Header.css';
+import './styles/Header.css';
 
 export default function Header({ onSearch }) {
     const [query, setQuery] = useState('');

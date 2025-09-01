@@ -1,5 +1,5 @@
 import React from 'react';
-import '../styles/PokemonList.css';
+import './styles/PokemonList.css';
 
 export default function PokemonList({ pokemon }) {
   return (
