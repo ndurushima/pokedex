@@ -1,8 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
-import PokemonList from './PokemonList';
+import { Routes, Route } from 'react-router-dom';
 import axios from 'axios';
+import PokemonList from './PokemonList';
 import Pagination from './Pagination';
 import Header from './Header';
+import PokemonDetail from './PokemonDetail';
+
 
 const PAGE_URL = 'https://pokeapi.co/api/v2/pokemon';
 const INDEX_URL = `${PAGE_URL}?limit=2000&offset=0`; 
@@ -140,16 +143,23 @@ function App() {
   if (loading) return 'Loading...';
 
   return (
-    <>
-      <Header onSearch={handleSearch} />
-      <PokemonList pokemon={pokemon} />
-      {!searching && (
-        <Pagination
-          gotoNextPage={nextPageUrl ? gotoNextPage : null}
-          gotoPrevPage={prevPageUrl ? gotoPrevPage : null}
-        />
-      )}
-    </>
+  <>
+    <Header onSearch={handleSearch} />
+    <Routes>
+      <Route path="/" element={
+        <>
+          <PokemonList pokemon={pokemon} />
+          {!searching && (
+            <Pagination
+              gotoNextPage={nextPageUrl ? gotoNextPage : null}
+              gotoPrevPage={prevPageUrl ? gotoPrevPage : null}
+            />
+          )}
+        </>
+      } />
+      <Route path="/pokemon/:id" element={<PokemonDetail />} />
+    </Routes>
+  </>
   );
 }
 
