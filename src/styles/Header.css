@@ -19,10 +19,11 @@
 
 .search-input {
   padding: 8px 12px;
+  text-align: center;
   border: none;
   border-radius: 6px;
   font-size: 1rem;
-  width: 240px;
+  width: 280px;
 }
 
 .search-button {
