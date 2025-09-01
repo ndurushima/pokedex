@@ -5,6 +5,8 @@ import Pagination from './Pagination';
 import Header from './Header';
 
 const PAGE_URL = 'https://pokeapi.co/api/v2/pokemon';
+const INDEX_URL = `${PAGE_URL}?limit=2000&offset=0`; 
+const MAX_MATCHES = 30; 
 
 function App() {
   const [pokemon, setPokemon] = useState([]);
@@ -14,7 +16,9 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [searching, setSearching] = useState(false);
 
-  // ===== Normal paginated fetch =====
+  const [indexData, setIndexData] = useState(null);
+  const indexControllerRef = useRef(null);
+
   useEffect(() => {
     if (searching) return;
 
@@ -50,26 +54,44 @@ function App() {
     return () => controller.abort();
   }, [currentPageUrl, searching]);
 
-  // ===== Debounced live search (single Pokémon) =====
   const searchTimeoutRef = useRef(null);
-  const searchControllerRef = useRef(null);
+
+  function buildIndexItems(results) {
+    return results.map((p) => {
+      const match = p.url.match(/\/pokemon\/(\d+)\//);
+      const id = match ? match[1] : null;
+      return {
+        name: p.name,
+        id,
+        image: id
+          ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${id}.png`
+          : '',
+      };
+    });
+  }
+
+  function filterIndex(idx, q) {
+    const isNumeric = /^\d+$/.test(q);
+    const query = q.toLowerCase();
+
+    let matches = [];
+    if (isNumeric) {
+      matches = idx.filter((p) => String(p.id || '').startsWith(query));
+    } else {
+      matches = idx.filter((p) => p.name.includes(query));
+    }
+    return matches.slice(0, MAX_MATCHES);
+  }
 
   function handleSearch(raw) {
-    // Cancel any pending debounce timer
     if (searchTimeoutRef.current) {
       clearTimeout(searchTimeoutRef.current);
       searchTimeoutRef.current = null;
-    }
-    // Abort any in-flight search request
-    if (searchControllerRef.current) {
-      searchControllerRef.current.abort();
-      searchControllerRef.current = null;
     }
 
     const query = String(raw || '').trim().toLowerCase();
 
     if (!query) {
-      // Reset to paginated mode; do NOT setLoading(true) here
       setSearching(false);
       setCurrentPageUrl(PAGE_URL);
       return;
@@ -77,34 +99,34 @@ function App() {
 
     setSearching(true);
 
-    // Debounce the actual request
     searchTimeoutRef.current = setTimeout(async () => {
-      const controller = new AbortController();
-      searchControllerRef.current = controller;
-
-      // Only now that we’re about to fire the request, show loader
-      setLoading(true);
       try {
-        const res = await axios.get(`${PAGE_URL}/${query}`, {
-          signal: controller.signal,
-        });
-        const poke = {
-          name: res.data.name,
-          id: res.data.id,
-          image: res.data.sprites?.other?.['official-artwork']?.front_default || '',
-        };
-        setPokemon([poke]);
-      } catch (err) {
-        if (err?.name === 'CanceledError' || err?.code === 'ERR_CANCELED') {
-          // aborted because user kept typing — do nothing
-          return;
+        if (!indexData) {
+          if (indexControllerRef.current) {
+            indexControllerRef.current.abort();
+            indexControllerRef.current = null;
+          }
+          indexControllerRef.current = new AbortController();
+
+          setLoading(true);
+          const res = await axios.get(INDEX_URL, { signal: indexControllerRef.current.signal });
+          const idx = buildIndexItems(res.data.results || []);
+          setIndexData(idx);
+
+          const filtered = filterIndex(idx, query);
+          setPokemon(filtered);
+          setLoading(false);
+        } else {
+          const filtered = filterIndex(indexData, query);
+          setPokemon(filtered);
         }
-        // Not found or other error => show empty list
+      } catch (err) {
+        if (err?.name === 'CanceledError' || err?.code === 'ERR_CANCELED') return;
+        console.error(err);
         setPokemon([]);
-      } finally {
         setLoading(false);
       }
-    }, 1000); // adjust delay if you want it snappier/slower
+    }, 500); 
   }
 
   function gotoNextPage() {
