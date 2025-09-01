@@ -20,15 +20,19 @@ function App() {
       setPrevPageUrl(res.data.previous)
 
       const mapped = res.data.results.map(p => {
-        const id = p.url.split('/').filter(Boolean).pop();
+        // robust id extraction
+        const match = p.url.match(/\/pokemon\/(\d+)\//);
+        const id = match ? match[1] : null;
         return {
           name: p.name,
           id,
-          image: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${id}.png`,
+          image: id
+            ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${id}.png`
+            : '',
         };
       });
 
-      setPokemon(res.data.results.map(p => p.name))
+      setPokemon(mapped)
       setLoading(false)
     })
     .catch(() => setLoading(false));

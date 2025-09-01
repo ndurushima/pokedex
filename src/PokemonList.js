@@ -1,4 +1,5 @@
-import React from 'react'
+import React from 'react';
+import './PokemonList.css';
 
 export default function PokemonList({ pokemon }) {
   return (
