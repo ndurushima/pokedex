@@ -72,7 +72,7 @@ Ensuring pagination and search modes don’t conflict.
 
 -----Known Bugs / Future Improvements-----
 
-Detail page is minimal (could include abilities, types, moves).
+Detail page is minimal (could include abilities, moves, and weaknesses).
 
 Search is limited to the first 1000 Pokémon in the index.
 
