@@ -1,10 +1,17 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import './styles/PokemonList.css';
 
 export default function PokemonList({ pokemon }) {
   return (
     <div className="pokemon-grid">
         {pokemon.map(p => (
+          <Link
+            to={`/pokemon/${p.id}`}
+            key={p.id}
+            className="pokemon-card-link"
+          >
+
             <div key={p.id} className="pokemon-card">
               <img 
                 src={p.image}
@@ -18,6 +25,7 @@ export default function PokemonList({ pokemon }) {
               <div className="pokemon-name">{p.name}</div>
               <div className="pokemon-id">#{p.id}</div>
             </div>
+          </Link>
         ))}
     </div>
   )
