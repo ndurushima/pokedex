@@ -1,4 +1,4 @@
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { capitalize } from '@mui/material';
@@ -6,6 +6,10 @@ import { capitalize } from '@mui/material';
 export default function PokemonDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const fromSeach = location.state?.fromSearch;
+
   const [pokemon, setPokemon] = useState(null);
 
   useEffect(() => {
@@ -42,7 +46,12 @@ export default function PokemonDetail() {
       <p><strong>Height:</strong> {heightFeetInches}</p>
       <p><strong>Weight:</strong> {weightLbs} lbs.</p>
 
-      <button onClick={() => navigate('/')} className="back-button">Back to List</button>
+      <button onClick={() => {
+        if (fromSeach) {
+          navigate('/', { state: {reset: true}});
+        } else {
+        navigate('/')};
+        }} className="back-button">Back to List</button>
     </div>
   );
 }

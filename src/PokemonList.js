@@ -8,6 +8,7 @@ export default function PokemonList({ pokemon }) {
         {pokemon.map(p => (
           <Link
             to={`/pokemon/${p.id}`}
+            state={{ fromSearch: true}}
             key={p.id}
             className="pokemon-card-link"
           >

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import PokemonList from './PokemonList';
 import Pagination from './Pagination';
@@ -21,6 +21,16 @@ function App() {
 
   const [indexData, setIndexData] = useState(null);
   const indexControllerRef = useRef(null);
+
+  const location = useLocation();
+
+  useEffect(() => {
+    if (location.state?.reset) {
+      setSearching(false);
+      setCurrentPageUrl(PAGE_URL);
+      setPokemon([]); 
+    }
+  }, [location.state]);
 
   useEffect(() => {
     if (searching) return;
