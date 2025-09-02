@@ -1,9 +1,10 @@
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 
 export default function PokemonDetail() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [pokemon, setPokemon] = useState(null);
 
   useEffect(() => {
@@ -23,6 +24,8 @@ export default function PokemonDetail() {
       />
       <p>Height: {pokemon.height}</p>
       <p>Weight: {pokemon.weight}</p>
+
+      <button onClick={() => navigate('/')} className="back-button">Back to List</button>
     </div>
   );
 }
