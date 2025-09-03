@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Routes, Route, useLocation } from 'react-router-dom';
+import { Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import PokemonList from './PokemonList';
 import Pagination from './Pagination';
@@ -22,15 +22,25 @@ function App() {
   const [indexData, setIndexData] = useState(null);
   const indexControllerRef = useRef(null);
 
+  const [refreshTick, setRefreshTick] = useState(0);
+
   const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (location.state?.reset) {
       setSearching(false);
-      setCurrentPageUrl(PAGE_URL);
-      setPokemon([]); 
+      setIndexData(null);
+
+      if (currentPageUrl === PAGE_URL) {
+        setRefreshTick((t) => t + 1);
+      } else {
+        setCurrentPageUrl(PAGE_URL);
+      }
+
+      navigate(location.pathname, { replace: true, state: null });
     }
-  }, [location.state]);
+  }, [location.state, location.pathname, navigate, currentPageUrl]);
 
   useEffect(() => {
     if (searching) return;
@@ -65,7 +75,7 @@ function App() {
       .finally(() => setLoading(false));
 
     return () => controller.abort();
-  }, [currentPageUrl, searching]);
+  }, [currentPageUrl, searching, refreshTick]);
 
   const searchTimeoutRef = useRef(null);
 
@@ -106,7 +116,12 @@ function App() {
 
     if (!query) {
       setSearching(false);
-      setCurrentPageUrl(PAGE_URL);
+
+      if (currentPageUrl === PAGE_URL) {
+        setRefreshTick((t) => t + 1);
+      } else {
+        setCurrentPageUrl(PAGE_URL);
+      }
       return;
     }
 
